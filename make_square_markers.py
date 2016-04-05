@@ -74,5 +74,5 @@ def write_all_markers_png(size):
 
 
 if __name__ == '__main__':
-    write_all_markers_png(2000)
+    # write_all_markers_png(2000)
     write_marker_png(9,800)
