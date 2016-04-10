@@ -33,9 +33,9 @@ def main(arguments):
 
     for i in corners:
         x, y = i.ravel()
-        cv2.circle(img, (x,y), 3, 255, -1)
+        cv2.circle(img, (x,y), 3, (0,0,255), -1)
 
-    cv2.imwrite('orig_w_corners.jpg', img)
+    cv2.imwrite('skewed_w_corners.jpg', img)
 
     # # http://docs.opencv.org/3.0-beta/doc/py_tutorials/py_feature2d/py_fast/py_fast.html
     # # Initiate FAST object with default values
