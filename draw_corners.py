@@ -10,6 +10,7 @@ Arguments:
 
 Options:
     --verbose       Print debug output
+    --show          Show output
 
 """
 import os
@@ -20,6 +21,7 @@ from docopt import docopt
 def main(arguments):
     print arguments
     image_filename = arguments['<file_name>']
+    show_output = arguments['--show']
 
     cwd = os.getcwd()
 
@@ -37,11 +39,13 @@ def main(arguments):
 
     cv2.imwrite('skewed_w_corners.jpg', img)
 
-    
 
-    cv2.imshow('image',img)
-    if cv2.waitKey(0) & 0xff == 27:
-        cv2.destroyAllWindows()
+    if show_output:
+        cv2.imshow('image',img)
+        if cv2.waitKey(0) & 0xff == 27:
+            cv2.destroyAllWindows()
+
+
 
     # # Draw a diagonal blue line with thickness of 3 px
     # # For marker32.png, corners of the marker are (160, 3*160) (160, 4*160) (2*160, 3*160) (2*160, 4*160)
@@ -51,6 +55,16 @@ def main(arguments):
     # cv2.line(img, (2*160, 3*160), (2*160, 4*160), (255, 0, 0), 3)
     # cv2.line(img, (160, 4*160), (2*160, 4*160), (255, 0, 0), 3)
 
+
+def draw(img, corners, imgpts):
+    """
+    Function from OpenCV tutorial: http://docs.opencv.org/3.1.0/d7/d53/tutorial_py_pose.html#gsc.tab=0
+    """
+    corner = tuple(corners[0].ravel())
+    img = cv2.line(img, corner, tuple(imgpts[0].ravel()), (255,0,0), 5)
+    img = cv2.line(img, corner, tuple(imgpts[1].ravel()), (0,255,0), 5)
+    img = cv2.line(img, corner, tuple(imgpts[2].ravel()), (0,0,255), 5)
+    return img
 
 if __name__ == '__main__':
     arguments = docopt(__doc__)
