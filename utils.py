@@ -3,22 +3,26 @@ import cv2
 
 
 def check_for_id(gray, contour):
-    # Create a rectangle of points and a destination points array
-    dst, rect, maxWidth, maxHeight = create_rect(contour)
-
-    # calculate the perspective transform matrix and warp
-    # the perspective to grab the screen
-    M = cv2.getPerspectiveTransform(rect, dst)
-    warp = cv2.warpPerspective(gray, M, (maxWidth, maxHeight))
+    warp = get_warped_img(gray, contour)
 
     # show(draw_grid(warp))
 
     # a 3x3 array of bits to ID the marker.
     id_bits = get_id_bits(warp)
 
-    print id_bits
+    # print id_bits
 
     return validate_id(id_bits)
+
+
+def get_warped_img(gray, contour):
+    # Create a rectangle of points and a destination points array
+    dst, rect, maxWidth, maxHeight = create_rect(contour)
+
+    # calculate the perspective transform matrix and warp
+    # the perspective to grab the screen
+    M = cv2.getPerspectiveTransform(rect, dst)
+    return cv2.warpPerspective(gray, M, (maxWidth, maxHeight))
 
 
 def create_rect(contour):
