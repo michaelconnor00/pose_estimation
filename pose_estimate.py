@@ -2,7 +2,7 @@ import os
 import math
 import numpy as np
 import cv2
-from utils import create_rect
+from marker_detection import create_rect
 
 
 def draw_ucs(img, contour):
