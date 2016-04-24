@@ -16,7 +16,7 @@ import os
 import numpy as np
 import cv2
 from docopt import docopt
-from marker_detection import check_for_id
+from marker_identification import check_for_id
 from pose_estimate import draw_ucs
 
 
@@ -31,11 +31,9 @@ def main(arguments):
 
     _, thresh = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
 
-    # adap_thresh = cv2.adaptiveThreshold( #
-    #     img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 23, 2
-    # )
-
-    perimeter_contour, contours = get_contours(thresh)
+    contours = get_contours(thresh)
+    # cv2.drawContours(img, contours, -1, (0,0,255), 3)
+    # show(img)
 
     for contour in contours:
         is_marker = check_for_id(gray, contour)
@@ -53,6 +51,7 @@ def show(img):
 def get_contours(image):
     """
     Takes a binary image and returns contours filtered by size and squarish shape.
+    image - the image to search for contours in. 
     """
     contours, hierarchy = cv2.findContours(image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -67,14 +66,14 @@ def get_contours(image):
     for contour in filtered_contours:
         # Approximate the contour
         perimeter = cv2.arcLength(contour, True)
-        # Look for Ploygon shapes
+        # Look for Polygon shapes
         approx = cv2.approxPolyDP(contour, 0.1 * perimeter, True)
 
         # Only add to list if contour has 4 corners
         if len(approx) == 4:
             final_contours.append(approx)
 
-    return contours[0], final_contours
+    return final_contours
 
 
 if __name__ == '__main__':

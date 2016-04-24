@@ -1,21 +1,38 @@
+"""
+The code used here was derived from a tutorial about a similar topic.
+Links are here:
+http://www.pyimagesearch.com/2014/04/21/building-pokedex-python-finding-game-boy-screen-step-4-6/
+http://www.pyimagesearch.com/2014/05/05/building-pokedex-python-opencv-perspective-warping-step-5-6/
+"""
 import numpy as np
 import cv2
 
 
 def check_for_id(gray, contour):
+    """
+    Check if a marker is valid.
+    gray - grayscale image
+    contour - the contour in the grayscale image to check.
+    """
     warp = get_warped_img(gray, contour)
 
+    # show(warp)
     # show(draw_grid(warp))
 
     # a 3x3 array of bits to ID the marker.
     id_bits = get_id_bits(warp)
 
-    # print id_bits
+    print id_bits
 
     return validate_id(id_bits)
 
 
 def get_warped_img(gray, contour):
+    """
+    Function to return a warped perspective sub-image of the contour.
+    gray - gray scale image
+    contour - the contour of the marker
+    """
     # Create a rectangle of points and a destination points array
     dst, rect, maxWidth, maxHeight = create_rect(contour)
 
@@ -26,6 +43,11 @@ def get_warped_img(gray, contour):
 
 
 def create_rect(contour):
+    """
+    Function the calculates the destination array of the image plane, the
+    rectangel coords of the marker and maxWidth and maxHeight of the contour.
+    Derived from: http://www.pyimagesearch.com/2014/04/21/building-pokedex-python-finding-game-boy-screen-step-4-6/
+    """
     # Create array of zeros
     rect = np.zeros((4, 2), dtype="float32")
 
@@ -72,6 +94,9 @@ def create_rect(contour):
 
 
 def validate_id(bits_array):
+    """
+    Determine if the 2D array is a valid marker identification array.
+    """
     is_valid = True
 
     if len(bits_array) != 3:
@@ -89,6 +114,11 @@ def validate_id(bits_array):
 
 
 def get_id_bits(img):
+    """
+    Function to create and fill a 2D array that represents the
+    inner grid of a marker candidate.
+    img - image to inspect.
+    """
     x_offset = img.shape[1]/5
     y_offset = img.shape[0]/5
 
@@ -106,6 +136,14 @@ def get_id_bits(img):
 
 
 def extract_bit(img, y_start, y_end, x_start, x_end):
+    """
+    Function takes a sub region of an image and determines if the area should be a 1 or a 0.
+    img - the full image
+    y_start - starting y position
+    y_end - y ending position
+    x_start - x starting position
+    x_end - x ending position
+    """
     # constant for ignoring pixels around the boarder
     ignore_percent = 0.1
     const = int(((img.shape[0]/5 + img.shape[1]/5)/2) * ignore_percent)
@@ -115,19 +153,28 @@ def extract_bit(img, y_start, y_end, x_start, x_end):
     # subrect of an image: img[y1:y2, x1:x2]
     subrect = img[y_start:y_end, x_start:x_end]
     # show(subrect)
+
     _, thresh = cv2.threshold(subrect, 128, 255, cv2.THRESH_BINARY)
     total_pixels = thresh.size
     non_zero_pixels = cv2.countNonZero(thresh)
     # print 'NON/TOTAL: ', non_zero_pixels, total_pixels
+
     percentage_non_zero = float(non_zero_pixels)/float(total_pixels)
     # print 'PER:', percentage_non_zero
-    if percentage_non_zero < 0.5:
+
+    if percentage_non_zero < 0.01:
         return 0
-    elif percentage_non_zero >= 0.5:
+    elif percentage_non_zero >= 0.95:
         return 1
+    else:
+        # Not a valid bit
+        return -1
 
 
 def draw_grid(img):
+    """
+    Funciton to draw a grid over the warped image. 
+    """
     img_copy = img.copy()
 
     x_offset = img.shape[1]/5
@@ -144,7 +191,7 @@ def draw_grid(img):
     return img_copy
 
 
-# def show(img):
-#     cv2.imshow('image',img)
-#     if cv2.waitKey(0) & 0xff == 27:
-#         cv2.destroyAllWindows()
+def show(img):
+    cv2.imshow('image',img)
+    if cv2.waitKey(0) & 0xff == 27:
+        cv2.destroyAllWindows()
